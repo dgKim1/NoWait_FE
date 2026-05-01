@@ -16,15 +16,15 @@ import imgPlaceHolder from "../../../assets/menu_placeholder.png";
 import { SwipeableRow } from "./Swipe/SwipeableRow";
 
 const DragDropContext = lazy(() =>
-  import("react-beautiful-dnd").then((mod) => ({
+  import("@hello-pangea/dnd").then((mod) => ({
     default: mod.DragDropContext,
   }))
 );
 const Droppable = lazy(() =>
-  import("react-beautiful-dnd").then((mod) => ({ default: mod.Droppable }))
+  import("@hello-pangea/dnd").then((mod) => ({ default: mod.Droppable }))
 );
 const Draggable = lazy(() =>
-  import("react-beautiful-dnd").then((mod) => ({ default: mod.Draggable }))
+  import("@hello-pangea/dnd").then((mod) => ({ default: mod.Draggable }))
 );
 
 function lockVertical(
@@ -337,10 +337,12 @@ const MenuSection = ({ isTablet }: { isTablet: boolean }) => {
       <div className="border-t border-[#EEEEEE]">
         <Suspense fallback={<div className="min-h-[120px]" />}>
           <DragDropContext onDragEnd={handleDragEnd}>
+            {/* @hello-pangea/dnd: react19,strictmode에서 isCombineEnabled prop 겁증 */}
             <Droppable
               droppableId="menu-list"
               isDropDisabled={!editMode}
               direction="vertical"
+              isCombineEnabled={false}
             >
               {(provided) => (
                 <div {...provided.droppableProps} ref={provided.innerRef}>
