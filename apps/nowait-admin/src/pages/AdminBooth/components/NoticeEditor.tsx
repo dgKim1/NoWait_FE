@@ -1,33 +1,27 @@
-import { useState, useEffect } from "react";
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
-import { useRemoveEmoji } from "../../../hooks/useRemoveEmoji";
-import boldIcon from "../../../assets/editorToolBar/bold.svg";
-import italicIcon from "../../../assets/editorToolBar/italic.svg";
-import sunderIcon from "../../../assets/editorToolBar/sunder.svg";
-import underlineIcon from "../../../assets/editorToolBar/underline.svg";
-import Placeholder from "@tiptap/extension-placeholder";
-import HardBreak from "@tiptap/extension-hard-break";
+import { useState, useEffect } from 'react';
+import { useEditor, EditorContent, type Editor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import { useRemoveEmoji } from '../../../hooks/useRemoveEmoji';
+import boldIcon from '../../../assets/editorToolBar/bold.svg';
+import italicIcon from '../../../assets/editorToolBar/italic.svg';
+import sunderIcon from '../../../assets/editorToolBar/sunder.svg';
+import underlineIcon from '../../../assets/editorToolBar/underline.svg';
+import Placeholder from '@tiptap/extension-placeholder';
+import HardBreak from '@tiptap/extension-hard-break';
 
-const MenuBar = ({ editor }: { editor: any }) => {
+const MenuBar = ({ editor }: { editor: Editor | null }) => {
   const [editorChanged, setEditorChanged] = useState(0);
-  const exclusive = (tool: "bold" | "italic" | "underline" | "strike") => {
+  const exclusive = (tool: 'bold' | 'italic' | 'underline' | 'strike') => {
     if (!editor) return;
 
     const isActiveNow =
-      (tool === "bold" && editor.isActive("bold")) ||
-      (tool === "italic" && editor.isActive("italic")) ||
-      (tool === "underline" && editor.isActive("underline")) ||
-      (tool === "strike" && editor.isActive("strike"));
+      (tool === 'bold' && editor.isActive('bold')) ||
+      (tool === 'italic' && editor.isActive('italic')) ||
+      (tool === 'underline' && editor.isActive('underline')) ||
+      (tool === 'strike' && editor.isActive('strike'));
     // 전부해제
-    const c = editor
-      .chain()
-      .focus()
-      .unsetBold()
-      .unsetItalic()
-      .unsetUnderline()
-      .unsetStrike();
+    const c = editor.chain().focus().unsetBold().unsetItalic().unsetUnderline().unsetStrike();
 
     //이미 활성 상태였다면 툴 바 전체 해제 --> 즉 기본 글꼴
     if (isActiveNow) {
@@ -36,10 +30,10 @@ const MenuBar = ({ editor }: { editor: any }) => {
     }
 
     //활성 상태였던게 없다면 클릭한 툴 버튼 기능만 활성화
-    if (tool === "bold") c.setBold();
-    if (tool === "italic") c.setItalic();
-    if (tool === "underline") c.setUnderline();
-    if (tool === "strike") c.setStrike();
+    if (tool === 'bold') c.setBold();
+    if (tool === 'italic') c.setItalic();
+    if (tool === 'underline') c.setUnderline();
+    if (tool === 'strike') c.setStrike();
 
     c.run();
   };
@@ -50,46 +44,40 @@ const MenuBar = ({ editor }: { editor: any }) => {
     console.log(editorChanged);
 
     const update = () => setEditorChanged((prev) => prev + 1);
-    editor.on("transaction", update);
-    return () => editor.off("transaction", update);
+    editor.on('transaction', update);
+    return () => {
+      editor.off('transaction', update);
+    };
   }, [editor]);
 
   if (!editor) return null;
 
   const baseBtnClass =
-    "h-[34px] w-[34px] flex justify-center items-center rounded hover:bg-gray-100 transition-colors duration-200";
+    'h-[34px] w-[34px] flex justify-center items-center rounded hover:bg-gray-100 transition-colors duration-200';
 
   return (
     <div className="flex px-[14px] py-[8px] border-b border-[#F4F4F4] text-gray-600">
       <button
-        onClick={() => exclusive("bold")}
-        className={`${baseBtnClass} ${
-          editor.isActive("bold") ? "bg-gray-100" : ""
-        }`}
+        onClick={() => exclusive('bold')}
+        className={`${baseBtnClass} ${editor.isActive('bold') ? 'bg-gray-100' : ''}`}
       >
         <img src={boldIcon} />
       </button>
       <button
-        onClick={() => exclusive("italic")}
-        className={`${baseBtnClass} ${
-          editor.isActive("italic") ? "bg-gray-100" : ""
-        }`}
+        onClick={() => exclusive('italic')}
+        className={`${baseBtnClass} ${editor.isActive('italic') ? 'bg-gray-100' : ''}`}
       >
         <img src={italicIcon} />
       </button>
       <button
-        onClick={() => exclusive("underline")}
-        className={`${baseBtnClass} ${
-          editor.isActive("underline") ? "bg-gray-100" : ""
-        }`}
+        onClick={() => exclusive('underline')}
+        className={`${baseBtnClass} ${editor.isActive('underline') ? 'bg-gray-100' : ''}`}
       >
         <img src={underlineIcon} />
       </button>
       <button
-        onClick={() => exclusive("strike")}
-        className={`${baseBtnClass} ${
-          editor.isActive("strike") ? "bg-gray-100" : ""
-        }`}
+        onClick={() => exclusive('strike')}
+        className={`${baseBtnClass} ${editor.isActive('strike') ? 'bg-gray-100' : ''}`}
       >
         <img src={sunderIcon} />
       </button>
@@ -115,21 +103,23 @@ const NoticeEditor = ({
         keepMarks: true, // 줄바꿈 시 볼드/이탤릭 같은 마크 유지
       }),
       Placeholder.configure({
-        placeholder: "내용을 입력해주세요",
+        placeholder: '내용을 입력해주세요',
         showOnlyCurrent: false, // 포커스 없을 때도 표시
-        emptyNodeClass: "is-editor-empty", // CSS 타겟 클래스
+        emptyNodeClass: 'is-editor-empty', // CSS 타겟 클래스
       }),
     ],
-    content: notice || "",
+    content: notice || '',
   });
   const { removeEmojiAll } = useRemoveEmoji();
 
   // 부모로 내용 동기화
   useEffect(() => {
     if (!editor) return;
-    editor.on("update", () => {
-      setNotice(editor.getHTML());
-    });
+    const handleUpdate = () => setNotice(editor.getHTML());
+    editor.on('update', handleUpdate);
+    return () => {
+      editor.off('update', handleUpdate);
+    };
   }, [editor, setNotice]);
 
   useEffect(() => {

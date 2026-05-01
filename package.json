@@ -9,10 +9,15 @@
   "scripts": {
     "dev:admin": "turbo run dev --filter=nowait-admin",
     "dev:user": "turbo run dev --filter=nowait-user",
-    "vercel-build": "turbo run build && node scripts/merge-builds.js"
+    "vercel-build": "turbo run build && node scripts/merge-builds.js",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@yarnpkg/sdks": "^3.2.2",
+    "eslint": "^9",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.3",
     "turbo": "^2.5.6",
     "typescript": "^5.8.3"
   },

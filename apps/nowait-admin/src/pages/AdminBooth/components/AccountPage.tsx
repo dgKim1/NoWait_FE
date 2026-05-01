@@ -146,10 +146,10 @@ const AccountPage = () => {
     (opt) => (inputs[opt.id] ?? "").trim().length > 0
   );
 
-  const serverKakao = storePayment?.response.kakaoPayUrl;
-  const serverToss = storePayment?.response.tossUrl;
-  const serverNaver = storePayment?.response.naverPayUrl;
-  const serverAccount = storePayment?.response.accountNumber;
+  const serverKakao = storePayment?.response?.kakaoPayUrl;
+  const serverToss = storePayment?.response?.tossUrl;
+  const serverNaver = storePayment?.response?.naverPayUrl;
+  const serverAccount = storePayment?.response?.accountNumber;
 
   const curKakao = inputs.kakao;
   const curToss = inputs.toss;
