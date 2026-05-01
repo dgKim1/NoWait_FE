@@ -1,35 +1,34 @@
-import { Suspense, lazy, useEffect, useState } from "react";
-import type { CSSProperties } from "react";
-import editOrderIcon from "../../../assets/edit_order_icon.svg";
-import ToggleSwitch from "../../AdminHome/components/ToggleSwitch";
-import MenuModal from "./Modal/menuModal";
-import { useCreateMenu } from "../../../hooks/booth/menu/useCreateMenu";
-import { useUploadMenuImage } from "../../../hooks/booth/useUploadMenuImage";
-import { useGetAllMenus } from "../../../hooks/booth/menu/useGetAllMenus";
-import { useUpdateMenu } from "../../../hooks/booth/useUpdateMenu";
-import addIcon from "../../../assets/booth/add.svg";
-import MenuRemoveModal from "./Modal/MenuRemoveModal";
-import { useDeleteMenu } from "../../../hooks/booth/menu/useDeleteMenu";
-import { useToggleMenuSoldOut } from "../../../hooks/booth/menu/useToggleMenuSoldOut";
-import { useUpdateMenuSort } from "../../../hooks/booth/menu/useUpadateMenuSort";
-import imgPlaceHolder from "../../../assets/menu_placeholder.png";
-import { SwipeableRow } from "./Swipe/SwipeableRow";
+import { Suspense, lazy, useEffect, useState } from 'react';
+import type { CSSProperties } from 'react';
+import type { DropResult } from '@hello-pangea/dnd';
+import editOrderIcon from '../../../assets/edit_order_icon.svg';
+import ToggleSwitch from '../../AdminHome/components/ToggleSwitch';
+import MenuModal from './Modal/menuModal';
+import { useCreateMenu } from '../../../hooks/booth/menu/useCreateMenu';
+import { useUploadMenuImage } from '../../../hooks/booth/useUploadMenuImage';
+import { useGetAllMenus } from '../../../hooks/booth/menu/useGetAllMenus';
+import { useUpdateMenu } from '../../../hooks/booth/useUpdateMenu';
+import addIcon from '../../../assets/booth/add.svg';
+import MenuRemoveModal from './Modal/MenuRemoveModal';
+import { useDeleteMenu } from '../../../hooks/booth/menu/useDeleteMenu';
+import { useToggleMenuSoldOut } from '../../../hooks/booth/menu/useToggleMenuSoldOut';
+import { useUpdateMenuSort } from '../../../hooks/booth/menu/useUpadateMenuSort';
+import imgPlaceHolder from '../../../assets/menu_placeholder.png';
+import { SwipeableRow } from './Swipe/SwipeableRow';
 
 const DragDropContext = lazy(() =>
-  import("@hello-pangea/dnd").then((mod) => ({
+  import('@hello-pangea/dnd').then((mod) => ({
     default: mod.DragDropContext,
   }))
 );
 const Droppable = lazy(() =>
-  import("@hello-pangea/dnd").then((mod) => ({ default: mod.Droppable }))
+  import('@hello-pangea/dnd').then((mod) => ({ default: mod.Droppable }))
 );
 const Draggable = lazy(() =>
-  import("@hello-pangea/dnd").then((mod) => ({ default: mod.Draggable }))
+  import('@hello-pangea/dnd').then((mod) => ({ default: mod.Draggable }))
 );
 
-function lockVertical(
-  style?: CSSProperties
-): CSSProperties | undefined {
+function lockVertical(style?: CSSProperties): CSSProperties | undefined {
   if (!style || !style.transform) return style;
   const t = String(style.transform);
   const m2d = t.match(/translate\((-?\d+\.?\d*)px,\s*(-?\d+\.?\d*)px\)/);
@@ -37,9 +36,7 @@ function lockVertical(
     const [, , y] = m2d;
     return { ...style, transform: `translate(0px, ${y}px)` };
   }
-  const m3d = t.match(
-    /translate3d\((-?\d+\.?\d*)px,\s*(-?\d+\.?\d*)px,\s*(-?\d+\.?\d*)px\)/
-  );
+  const m3d = t.match(/translate3d\((-?\d+\.?\d*)px,\s*(-?\d+\.?\d*)px,\s*(-?\d+\.?\d*)px\)/);
   if (m3d) {
     const [, , y, z] = m3d;
     return { ...style, transform: `translate3d(0px, ${y}px, ${z}px)` };
@@ -49,8 +46,8 @@ function lockVertical(
 
 // 세 자리마다 , 붙여서 가격표시
 const formatNumber = (num: number) => {
-  if (!num) return "";
-  return String(num).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  if (!num) return '';
+  return String(num).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
 interface Menu {
@@ -69,12 +66,12 @@ const MenuSection = ({ isTablet }: { isTablet: boolean }) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
-  const [selectedMenu, setSelectedMenu] = useState<any>(null);
+  const [selectedMenu, setSelectedMenu] = useState<Menu | null>(null);
   const [tempImages, setTempImages] = useState<Record<number, string>>({});
 
   const { mutate: soldOut } = useToggleMenuSoldOut();
-  const storeId = Number(localStorage.getItem("storeId"));
-  const { data: fetchedMenus = [], refetch } = useGetAllMenus(storeId);
+  const storeId = Number(localStorage.getItem('storeId'));
+  const { data: fetchedMenus, refetch } = useGetAllMenus(storeId);
 
   // 메뉴 생성 훅
   const { mutate: createMenu } = useCreateMenu();
@@ -86,7 +83,7 @@ const MenuSection = ({ isTablet }: { isTablet: boolean }) => {
   const { mutate: updateMenu } = useUpdateMenu();
   const { mutate: updateMenuSort } = useUpdateMenuSort();
 
-  const openEditModal = (menu: any) => {
+  const openEditModal = (menu: Menu) => {
     setSelectedMenu(menu);
     setIsEditModalOpen(true);
   };
@@ -103,13 +100,13 @@ const MenuSection = ({ isTablet }: { isTablet: boolean }) => {
       adminDisplayName: newMenu.adminDisplayName,
       name: newMenu.name,
       description: newMenu.description,
-      price: parseInt(newMenu.price.replace(/[^0-9]/g, ""), 10),
+      price: parseInt(newMenu.price.replace(/[^0-9]/g, ''), 10),
     };
 
     createMenu(payload, {
       onSuccess: (data) => {
         const created = data.response;
-        console.log(created, "생성된 메뉴");
+        console.log(created, '생성된 메뉴');
 
         // 상태에 넣을 새 객체
         const menuItem: Menu = {
@@ -131,9 +128,7 @@ const MenuSection = ({ isTablet }: { isTablet: boolean }) => {
           setTempImages((prev) => ({ ...prev, [created.menuId]: tempUrl }));
 
           setMenus((prev) =>
-            prev.map((m) =>
-              m.id === created.menuId ? { ...m, imageUrl: tempUrl } : m
-            )
+            prev.map((m) => (m.id === created.menuId ? { ...m, imageUrl: tempUrl } : m))
           );
           uploadMenuImage(
             {
@@ -144,24 +139,20 @@ const MenuSection = ({ isTablet }: { isTablet: boolean }) => {
               onSuccess: (imgData) => {
                 const url = imgData.url;
                 setMenus((prev) =>
-                  prev.map((m) =>
-                    m.id === created.menuId ? { ...m, imageUrl: url } : m
-                  )
+                  prev.map((m) => (m.id === created.menuId ? { ...m, imageUrl: url } : m))
                 );
               },
               onError: () => {
-                console.log(
-                  "메뉴는 추가되었지만 이미지 업로드에 실패했습니다."
-                );
+                console.log('메뉴는 추가되었지만 이미지 업로드에 실패했습니다.');
               },
             }
           );
         } else {
-          console.log("메뉴가 성공적으로 추가되었습니다.");
+          console.log('메뉴가 성공적으로 추가되었습니다.');
         }
       },
       onError: () => {
-        console.log("메뉴 추가에 실패했습니다.");
+        console.log('메뉴 추가에 실패했습니다.');
       },
     });
   };
@@ -179,19 +170,17 @@ const MenuSection = ({ isTablet }: { isTablet: boolean }) => {
       adminDisplayName: updated.adminDisplayName,
       name: updated.name,
       description: updated.description,
-      price: parseInt(String(updated.price).replace(/[^0-9]/g, ""), 10),
+      price: parseInt(String(updated.price).replace(/[^0-9]/g, ''), 10),
     };
 
     updateMenu(payload, {
       onSuccess: () => {
         setMenus((prev) =>
-          prev.map((menu) =>
-            menu.id === updated.id ? { ...menu, ...payload } : menu
-          )
+          prev.map((menu) => (menu.id === updated.id ? { ...menu, ...payload } : menu))
         );
       },
       onError: () => {
-        console.log("메뉴 수정에 실패했습니다.");
+        console.log('메뉴 수정에 실패했습니다.');
       },
     });
 
@@ -204,13 +193,11 @@ const MenuSection = ({ isTablet }: { isTablet: boolean }) => {
           onSuccess: (imgData) => {
             const url = imgData.url;
             setMenus((prev) =>
-              prev.map((m) =>
-                m.id === updated.id ? { ...m, imageUrl: url } : m
-              )
+              prev.map((m) => (m.id === updated.id ? { ...m, imageUrl: url } : m))
             );
           },
           onError: () => {
-            console.log("이미지 업로드 실패");
+            console.log('이미지 업로드 실패');
           },
         }
       );
@@ -227,7 +214,7 @@ const MenuSection = ({ isTablet }: { isTablet: boolean }) => {
         setIsEditModalOpen(false);
       },
       onError: () => {
-        console.log("메뉴 삭제에 실패했습니다.");
+        console.log('메뉴 삭제에 실패했습니다.');
       },
     });
   };
@@ -242,7 +229,7 @@ const MenuSection = ({ isTablet }: { isTablet: boolean }) => {
           const updatedMenus = [...menus];
           updatedMenus[index].soldOut = !updatedMenus[index].soldOut;
           setMenus(updatedMenus);
-          console.log(data, "품절 토글");
+          console.log(data, '품절 토글');
           console.log(menus);
         },
         onError: () => {
@@ -257,7 +244,7 @@ const MenuSection = ({ isTablet }: { isTablet: boolean }) => {
     );
   };
 
-  const handleDragEnd = (result: any) => {
+  const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
     const reordered = Array.from(menus);
@@ -272,16 +259,17 @@ const MenuSection = ({ isTablet }: { isTablet: boolean }) => {
     }));
     updateMenuSort(body, {
       onSuccess: (res) => {
-        console.log("순서 저장 성공", res);
+        console.log('순서 저장 성공', res);
         refetch();
       },
       onError: (err) => {
-        console.log("순서 저장 에러", err);
+        console.log('순서 저장 에러', err);
       },
     });
   };
 
   useEffect(() => {
+    if (!fetchedMenus) return;
     const transformed = fetchedMenus
       .map((menu) => ({
         id: menu.menuId,
@@ -297,7 +285,7 @@ const MenuSection = ({ isTablet }: { isTablet: boolean }) => {
     setMenus(transformed);
   }, [fetchedMenus]);
 
-  console.log(menus, "메뉴목록들");
+  console.log(menus, '메뉴목록들');
 
   return (
     <div className="mt-[40px] mb-[20px] max-w-[614px]">
@@ -306,13 +294,11 @@ const MenuSection = ({ isTablet }: { isTablet: boolean }) => {
         <div className="flex gap-[10px]">
           <button
             className={`text-14-semibold px-[10px] py-[7.5px] rounded-[8px] ${
-              editMode
-                ? "bg-[#FFF0EB] text-primary"
-                : "bg-black-5 text-black-70"
+              editMode ? 'bg-[#FFF0EB] text-primary' : 'bg-black-5 text-black-70'
             }`}
             onClick={() => setEditMode((prev) => !prev)}
           >
-            {editMode ? "편집 완료" : "순서 편집"}
+            {editMode ? '편집 완료' : '순서 편집'}
           </button>
           <button
             className="flex itens-center text-14-semibold px-[10px] py-[7.5px] bg-black-5 text-black-70 rounded-[8px]"
@@ -324,12 +310,10 @@ const MenuSection = ({ isTablet }: { isTablet: boolean }) => {
       </div>
 
       <div className="flex justify-between mb-[10px]">
-        <p className="text-14-regular text-black-70 mb-2">
-          {menus.length}개의 메뉴
-        </p>
+        <p className="text-14-regular text-black-70 mb-2">{menus.length}개의 메뉴</p>
         {
           <p className="text-14-regular text-black-70 mb-2">
-            {editMode ? "순서 표시" : "품절 표시"}
+            {editMode ? '순서 표시' : '품절 표시'}
           </p>
         }
       </div>
@@ -354,9 +338,7 @@ const MenuSection = ({ isTablet }: { isTablet: boolean }) => {
                       isDragDisabled={!editMode}
                     >
                       {(provided) => {
-                        const lockedStyle = lockVertical(
-                          provided.draggableProps.style
-                        );
+                        const lockedStyle = lockVertical(provided.draggableProps.style);
 
                         return editMode ? (
                           <div
@@ -373,19 +355,13 @@ const MenuSection = ({ isTablet }: { isTablet: boolean }) => {
                             >
                               <div className="w-[70px] h-[70px] bg-black-5 rounded-md flex items-center justify-center overflow-hidden">
                                 <img
-                                  src={
-                                    tempImages[menu.id] ??
-                                    menu.imageUrl ??
-                                    imgPlaceHolder
-                                  }
+                                  src={tempImages[menu.id] ?? menu.imageUrl ?? imgPlaceHolder}
                                   className="w-full h-full object-cover"
                                   alt="placeholder"
                                 />
                               </div>
                               <div className="flex flex-col">
-                                <span className="text-16-semibold">
-                                  {menu.name}
-                                </span>
+                                <span className="text-16-semibold">{menu.name}</span>
                                 <span className="text-16-regular text-black-60">
                                   {formatNumber(menu.price)}원
                                 </span>
@@ -410,8 +386,7 @@ const MenuSection = ({ isTablet }: { isTablet: boolean }) => {
                             contentProps={{
                               ...provided.draggableProps, // isDragDisabled=true라 드래그는 안됨
                               style: lockedStyle,
-                              className:
-                                "flex justify-between items-center py-4 w-full",
+                              className: 'flex justify-between items-center py-4 w-full',
                             }}
                           >
                             <div
@@ -420,29 +395,20 @@ const MenuSection = ({ isTablet }: { isTablet: boolean }) => {
                             >
                               <div className="w-[70px] h-[70px] bg-black-5 rounded-md flex items-center justify-center overflow-hidden">
                                 <img
-                                  src={
-                                    tempImages[menu.id] ??
-                                    menu.imageUrl ??
-                                    imgPlaceHolder
-                                  }
+                                  src={tempImages[menu.id] ?? menu.imageUrl ?? imgPlaceHolder}
                                   className="w-full h-full object-cover"
                                   alt="placeholder"
                                 />
                               </div>
                               <div className="flex flex-col">
-                                <span className="text-16-semibold">
-                                  {menu.name}
-                                </span>
+                                <span className="text-16-semibold">{menu.name}</span>
                                 <span className="text-16-regular text-black-60">
                                   {formatNumber(menu.price)}원
                                 </span>
                               </div>
                             </div>
 
-                            <ToggleSwitch
-                              isOn={menu.soldOut}
-                              toggle={() => toggleSoldOut(idx)}
-                            />
+                            <ToggleSwitch isOn={menu.soldOut} toggle={() => toggleSoldOut(idx)} />
                           </SwipeableRow>
                         );
                       }}
